@@ -24,18 +24,23 @@ func filterUsersServer(t *testing.T, users []clientv1.User) *httptest.Server {
 			if name := query.Get("name"); name != "" && user.Name != name {
 				continue
 			}
+
 			if id := query.Get("id"); id != "" && user.Id != id {
 				continue
 			}
+
 			if email := query.Get("email"); email != "" && user.Email != email {
 				continue
 			}
+
 			filtered = append(filtered, user)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(clientv1.ListUsersOutputBody{Users: filtered}); err != nil {
+
+		err := json.NewEncoder(w).Encode(clientv1.ListUsersOutputBody{Users: filtered})
+		if err != nil {
 			t.Errorf("encoding response: %v", err)
 		}
 	}))
@@ -48,13 +53,15 @@ func commandWithUserFlags(t *testing.T, identifier, name string) *cobra.Command 
 	usernameAndIDFlag(cmd)
 
 	if identifier != "" {
-		if err := cmd.Flags().Set("identifier", identifier); err != nil {
+		err := cmd.Flags().Set("identifier", identifier)
+		if err != nil {
 			t.Fatalf("setting identifier flag: %v", err)
 		}
 	}
 
 	if name != "" {
-		if err := cmd.Flags().Set("name", name); err != nil {
+		err := cmd.Flags().Set("name", name)
+		if err != nil {
 			t.Fatalf("setting name flag: %v", err)
 		}
 	}
@@ -121,6 +128,7 @@ func TestResolveSingleUser(t *testing.T) {
 				if err == nil {
 					t.Fatalf("resolveSingleUser() error = nil, want error")
 				}
+
 				return
 			}
 
