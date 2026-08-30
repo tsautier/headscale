@@ -49,7 +49,7 @@ keys remain all-access.
 
 ### Fixes
 
-- `headscale users rename` now sends the ID of the resolved user instead of the raw flag value, so renaming by name works again
+- `headscale users rename` now sends the identifier of the matched user instead of the raw `--identifier` flag value, so renaming by name works again
 
 ## 0.29.3 (2026-07-29)
 
