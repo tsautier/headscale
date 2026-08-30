@@ -47,6 +47,10 @@ keys remain all-access.
 - Headscale now requires Go 1.27 to build
 - Fix extra-records filewatcher hanging on shutdown after the watched file is deleted, and leaking the watcher when setup fails [#3437](https://github.com/juanfont/headscale/pull/3437)
 
+### Fixes
+
+- `headscale users rename` now sends the ID of the resolved user instead of the raw flag value, so renaming by name works again
+
 ## 0.29.3 (2026-07-29)
 
 **Minimum supported Tailscale client version: v1.80.0**
