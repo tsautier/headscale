@@ -78,11 +78,11 @@ log:
 
 # Covers node key expiry, ephemeral nodes and subnet routes.
 node:
-  # The key expiry given to a non-tagged node that registers without one,
-  # whatever the method (auth key, CLI, web, OIDC). An expiry the client asks
-  # for, `oidc.use_expiry_from_token` and an admin's `headscale nodes expire`
-  # still apply. Tagged nodes never get this default. Zero or negative disables
-  # the default.
+  # The key expiry given to a node that registers without one, whatever the
+  # method (auth key, CLI, web, OIDC). An expiry the client asks for,
+  # `oidc.use_expiry_from_token` and an admin's `headscale nodes expire` still
+  # apply. A tagged node registers with key expiry turned off and keeps this
+  # time for when it is turned on. Zero or negative disables the default.
   expiry: 0s
   # Covers ephemeral nodes, which register with an ephemeral auth key and are
   # deleted once they have been offline for `node.ephemeral.inactivity_timeout`.
@@ -109,10 +109,10 @@ node:
 # Covers the cleanup of revoked pre-auth keys. See [Pre authenticated
 # key](https://headscale.net/stable/ref/registration/#pre-authenticated-key).
 preauth_keys:
-  # How long a soft-revoked pre-auth key (revoked via the v2 API's DELETE) is
-  # kept retrievable before the background collector hard-deletes it. Keys still
-  # backing a node are kept until the node is deleted. A zero or negative
-  # duration disables the collector.
+  # How long a soft-revoked pre-auth key or OAuth client (revoked via the v2
+  # API's DELETE) is kept retrievable before the background collector
+  # hard-deletes it. Keys still backing a node are kept until the node is
+  # deleted. A zero or negative duration disables the collector.
   revoked_retention: 168h
 
 # The DERP map: the relay servers clients use when they cannot connect directly,
@@ -417,6 +417,20 @@ auto_update:
   # Clients store the default they first see, so a later change reaches only new
   # clients.
   enabled: false
+
+# [tailsql](https://github.com/tailscale/tailsql), a read-only SQL web UI over
+# the headscale database, served as the node `tailsql` with `tag:tailsql` on
+# headscale's own tailnet. Headscale mints its credential, joins it in memory
+# and re-joins it if the node is deleted. Nobody can query it until the policy
+# lists `"tag:tailsql": []` in `tagOwners` and a grant to `tag:tailsql` gives
+# `ip` `tcp:80` (and `tcp:443` with `dns.certificates`) and `app`
+# `{"tailscale.com/cap/tailsql": [{"src": ["headscale"]}]}`.
+tailsql:
+  # Runs tailsql. It needs `database.type` sqlite.
+  enabled: false
+  # Holds the node's identity. Losing it registers a new node, `tailsql-1`, and
+  # leaves the old one for an admin to delete.
+  state_dir: /var/lib/headscale/tailsql
 
 # How the headscale CLI reaches the server: the local `unix_socket` without
 # authentication, or a remote `cli.address` with `cli.api_key`. The CLI reads
